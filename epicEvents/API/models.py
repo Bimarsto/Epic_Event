@@ -4,7 +4,12 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    TEAM = [
+        (None, ''),
+        ('sales', 'sales'),
+        ('support', 'support'),
+    ]
+    team = models.CharField(choices=TEAM, max_length=20, default=None)
 
 
 class Client(models.Model):
@@ -30,25 +35,22 @@ class Contract(models.Model):
     date_updated = models.DateTimeField(auto_now=True)
     status = models.BooleanField(default=False)
     amount = models.FloatField()
-    payement_due = models.DateTimeField()
+    payment_due = models.DateTimeField()
 
 
 class Event(models.Model):
-    EVENT_STATUS = [
-        ('Upcoming', 'upcoming'),
-        ('In progress', 'in_progress'),
-        ('Completed', 'completed')
-    ]
-
     client = models.ForeignKey(to='Client',
                                on_delete=models.PROTECT)
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
     support_contact = models.ForeignKey(to=settings.AUTH_USER_MODEL,
                                         on_delete=models.PROTECT)
-    event_status = models.CharField(max_length=25,
-                                    choices=EVENT_STATUS,
-                                    default='Upcoming')
+    event_status = models.ForeignKey(to='EventStatus',
+                                     on_delete=models.PROTECT)
     attendees = models.IntegerField()
     event_date = models.DateTimeField()
     note = models.TextField(max_length=1000)
+
+
+class EventStatus(models.Model):
+    status = models.CharField(max_length=20)
