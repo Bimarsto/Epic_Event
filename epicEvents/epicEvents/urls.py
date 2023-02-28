@@ -1,21 +1,19 @@
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework import routers
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from API.views import ClientViewSet, ContractViewSet, EventViewSet
 
-client_router = routers.SimpleRouter()
-client_router.register('clients', ClientViewSet, basename='clients')
-
-contract_router = routers.SimpleRouter()
-contract_router.register('contracts', ContractViewSet, basename='contracts')
-
-event_router = routers.SimpleRouter()
-event_router.register('events', EventViewSet, basename='events')
+routers = routers.SimpleRouter()
+routers.register('clients', ClientViewSet, basename='clients')
+routers.register('contracts', ContractViewSet, basename='contracts')
+routers.register('events', EventViewSet, basename='events')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(client_router.urls)),
-    path('api/', include(contract_router.urls)),
-    path('api/', include(event_router.urls)),
-]
+    path('api-auth/', include('rest_framework.urls')),
+    path('api/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/', include(routers.urls))
+    ]

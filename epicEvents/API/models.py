@@ -3,13 +3,13 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-class User(AbstractUser):
-    TEAM = [
-        (None, ''),
-        ('sales', 'sales'),
-        ('support', 'support'),
-    ]
-    team = models.CharField(choices=TEAM, max_length=20, default=None)
+# class User(AbstractUser):
+#     TEAM = [
+#         ('not_assigned', 'not_assigned'),
+#         ('sales', 'sales'),
+#         ('support', 'support'),
+#     ]
+#     team = models.CharField(choices=TEAM, max_length=20, default='not_assigned')
 
 
 class Client(models.Model):
