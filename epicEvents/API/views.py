@@ -3,45 +3,59 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
+from .permissions import AdminPermission, SalesPermission, SupportPermission
 from .models import Client, Contract, Event
-from .serializers import ClientListSerializer, ClientDetailSerializer, \
-                         ContractListSerializer, ContractDetailSerializer, \
-                         EventListSerializer, EventDetailSerializer
-                         # UserSignupSerializer
-
-
-# class SignupViewSet(APIView):
-#
-#     def post(self, request):
-#         serializer = UserSignupSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=HTTP_201_CREATED)
-#         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+from .serializers import ClientSerializer, ContractSerializer, EventSerializer
 
 
 class ClientViewSet(ModelViewSet):
-
-    serializer_class = ClientListSerializer
-    detail_serializer_class = ClientDetailSerializer
+    permission_classes = []
+    serializer_class = ClientSerializer
 
     def get_queryset(self):
         return Client.objects.all()
 
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [AdminPermission | SalesPermission | SupportPermission]
+        elif self.action in ['create', 'update', 'partial_update']:
+            permission_classes = [AdminPermission | SalesPermission]
+        else:
+            permission_classes = [AdminPermission]
+        return [permission() for permission in permission_classes]
+
 
 class ContractViewSet(ModelViewSet):
 
-    serializer_class = ContractListSerializer
-    detail_serializer_class = ContractDetailSerializer
+    serializer_class = ContractSerializer
 
     def get_queryset(self):
         return Contract.objects.all()
 
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [AdminPermission | SalesPermission | SupportPermission]
+        elif self.action in ['create', 'update', 'partial_update']:
+            permission_classes = [AdminPermission | SalesPermission]
+        else:
+            permission_classes = [AdminPermission]
+        return [permission() for permission in permission_classes]
+
 
 class EventViewSet(ModelViewSet):
 
-    serializer_class = EventListSerializer
-    detail_serializer_class = EventDetailSerializer
+    serializer_class = EventSerializer
 
     def get_queryset(self):
         return Event.objects.all()
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [AdminPermission | SalesPermission | SupportPermission]
+        elif self.action in ['create']:
+            permission_classes = [AdminPermission | SalesPermission]
+        elif self.action in ['update', 'partial_update']:
+            permission_classes = [AdminPermission | SupportPermission]
+        else:
+            permission_classes = [AdminPermission]
+        return [permission() for permission in permission_classes]
