@@ -1,7 +1,4 @@
-from django.conf.global_settings import AUTH_USER_MODEL
-from django.contrib.auth.hashers import make_password
-from rest_framework.serializers import ModelSerializer, SerializerMethodField, ValidationError
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.serializers import ModelSerializer
 from .models import Client, Contract, Event
 
 
