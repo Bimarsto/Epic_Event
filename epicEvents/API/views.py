@@ -1,12 +1,13 @@
 from rest_framework.viewsets import ModelViewSet
+from django.contrib.auth.models import User
 
-from .permissions import AdminPermission, SalesPermission, SupportPermission
+from .permissions import AdminPermission, SalesPermission, SupportPermission, IsSuperUser
 from .models import Client, Contract, Event
-from .serializers import ClientSerializer, ContractSerializer, EventSerializer
+from .serializers import ClientSerializer, ContractSerializer, EventSerializer, UserSerializer
 
 
 class ClientViewSet(ModelViewSet):
-    permission_classes = []
+
     serializer_class = ClientSerializer
 
     def get_queryset(self):
@@ -14,11 +15,11 @@ class ClientViewSet(ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
-            permission_classes = [AdminPermission | SalesPermission | SupportPermission]
+            permission_classes = [IsSuperUser | AdminPermission | SalesPermission | SupportPermission]
         elif self.action in ['create', 'update', 'partial_update']:
-            permission_classes = [AdminPermission | SalesPermission]
+            permission_classes = [IsSuperUser | AdminPermission | SalesPermission]
         else:
-            permission_classes = [AdminPermission]
+            permission_classes = [IsSuperUser | AdminPermission]
         return [permission() for permission in permission_classes]
 
 
@@ -31,11 +32,11 @@ class ContractViewSet(ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
-            permission_classes = [AdminPermission | SalesPermission | SupportPermission]
+            permission_classes = [IsSuperUser | AdminPermission | SalesPermission | SupportPermission]
         elif self.action in ['create', 'update', 'partial_update']:
-            permission_classes = [AdminPermission | SalesPermission]
+            permission_classes = [IsSuperUser | AdminPermission | SalesPermission]
         else:
-            permission_classes = [AdminPermission]
+            permission_classes = [IsSuperUser | AdminPermission]
         return [permission() for permission in permission_classes]
 
 
@@ -48,11 +49,26 @@ class EventViewSet(ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
-            permission_classes = [AdminPermission | SalesPermission | SupportPermission]
+            permission_classes = [IsSuperUser | AdminPermission | SalesPermission | SupportPermission]
         elif self.action in ['create']:
-            permission_classes = [AdminPermission | SalesPermission]
+            permission_classes = [IsSuperUser | AdminPermission | SalesPermission]
         elif self.action in ['update', 'partial_update']:
-            permission_classes = [AdminPermission | SupportPermission]
+            permission_classes = [IsSuperUser | AdminPermission | SupportPermission]
         else:
-            permission_classes = [AdminPermission]
+            permission_classes = [IsSuperUser | AdminPermission]
+        return [permission() for permission in permission_classes]
+
+
+class UserViewSet(ModelViewSet):
+
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        return User.objects.all()
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve', 'create', 'update', 'partial_update']:
+            permission_classes = [IsSuperUser | AdminPermission]
+        else:
+            permission_classes = [IsSuperUser]
         return [permission() for permission in permission_classes]

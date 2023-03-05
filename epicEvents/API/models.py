@@ -15,6 +15,9 @@ class Client(models.Model):
     sales_contact = models.ForeignKey(to=settings.AUTH_USER_MODEL,
                                       on_delete=models.PROTECT)
 
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} [{self.company_name}]"
+
 
 class Contract(models.Model):
     sales_contact = models.ForeignKey(to=settings.AUTH_USER_MODEL,
@@ -26,6 +29,9 @@ class Contract(models.Model):
     status = models.BooleanField(default=False)
     amount = models.FloatField()
     payment_due = models.DateTimeField()
+
+    def __str__(self):
+        return f"{self.client.__str__()} - {self.status}"
 
 
 class Event(models.Model):
@@ -39,8 +45,14 @@ class Event(models.Model):
                                      on_delete=models.PROTECT)
     attendees = models.IntegerField()
     event_date = models.DateTimeField()
-    note = models.TextField(max_length=1000)
+    note = models.TextField(max_length=1000, blank=True)
+
+    def __str__(self):
+        return f"{self.client.__str__()} - {self.event_date}"
 
 
 class EventStatus(models.Model):
     status = models.CharField(max_length=20)
+
+    def __str__(self):
+        return f"{self.status}"
