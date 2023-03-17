@@ -46,6 +46,8 @@ class Event(models.Model):
     attendees = models.IntegerField()
     event_date = models.DateTimeField()
     note = models.TextField(max_length=1000, blank=True)
+    contract = models.ForeignKey(to='Contract',
+                                 on_delete=models.PROTECT)
 
     def __str__(self):
         return f"{self.client.__str__()} - {self.event_date}"

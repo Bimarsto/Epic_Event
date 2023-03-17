@@ -12,17 +12,26 @@ class ClientViewSet(ModelViewSet):
 
     def get_queryset(self):
         user_group = str(self.request.user.groups.get())
+        client_name = self.request.query_params.get('company_name')
+        client_email = self.request.query_params.get('email')
         if 'Admin' == user_group:
-            return Client.objects.all()
+            queryset = Client.objects.all()
         elif 'Equipe de vente' == user_group:
-            return Client.objects.filter(sales_contact=self.request.user)
+            queryset = Client.objects.filter(sales_contact=self.request.user)
         elif 'Equipe support' == user_group:
             client_events = Event.objects.filter(support_contact=self.request.user)
             list_clients = []
             for event in client_events:
                 if event.client not in list_clients:
                     list_clients.append(event.client)
-            return list_clients
+            queryset = list_clients
+
+        # gestion des filtres
+        if client_name is not None:
+            queryset = queryset.filter(company_name=client_name)
+        if client_email is not None:
+            queryset = queryset.filter(email=client_email)
+        return queryset
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
@@ -40,10 +49,27 @@ class ContractViewSet(ModelViewSet):
 
     def get_queryset(self):
         user_group = str(self.request.user.groups.get())
+        client_name = self.request.query_params.get('company_name')
+        client_email = self.request.query_params.get('email')
+        contract_date = self.request.query_params.get('date_created')
+        contract_amount = self.request.query_params.get('amount')
         if 'Admin' == user_group:
-            return Contract.objects.all()
+            queryset = Contract.objects.all()
         else:
-            return Contract.objects.filter(sales_contact=self.request.user)
+            queryset = Contract.objects.filter(sales_contact=self.request.user)
+
+        # gestion des filtres
+        if client_name is not None:
+            client = Client.objects.get(company_name=client_name)
+            queryset = queryset.filter(client=client)
+        if client_email is not None:
+            client = Client.objects.get(email=client_email)
+            queryset = queryset.filter(client=client)
+        if contract_date is not None:
+            queryset = queryset.filter(date_created=contract_date)
+        if contract_amount is not None:
+            queryset = queryset.filter(amount=contract_amount)
+        return queryset
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
@@ -61,10 +87,24 @@ class EventViewSet(ModelViewSet):
 
     def get_queryset(self):
         user_group = str(self.request.user.groups.get())
+        client_name = self.request.query_params.get('company_name')
+        client_email = self.request.query_params.get('email')
+        event_date = self.request.query_params.get('event_date')
         if 'Admin' == user_group:
-            return Event.objects.all()
+            queryset = Event.objects.all()
         else:
-            return Event.objects.filter(support_contact=self.request.user)
+            queryset = Event.objects.filter(support_contact=self.request.user)
+
+        # gestion des filtres
+        if client_name is not None:
+            client = Client.objects.get(company_name=client_name)
+            queryset = queryset.filter(client=client)
+        if client_email is not None:
+            client = Client.objects.get(email=client_email)
+            queryset = queryset.filter(client=client)
+        if event_date is not None:
+            queryset = queryset.filter(event_date=event_date)
+        return queryset
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
