@@ -11,7 +11,18 @@ class ClientViewSet(ModelViewSet):
     serializer_class = ClientSerializer
 
     def get_queryset(self):
-        return Client.objects.all()
+        user_group = str(self.request.user.groups.get())
+        if 'Admin' == user_group:
+            return Client.objects.all()
+        elif 'Equipe de vente' == user_group:
+            return Client.objects.filter(sales_contact=self.request.user)
+        elif 'Equipe support' == user_group:
+            client_events = Event.objects.filter(support_contact=self.request.user)
+            list_clients = []
+            for event in client_events:
+                if event.client not in list_clients:
+                    list_clients.append(event.client)
+            return list_clients
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
@@ -28,7 +39,11 @@ class ContractViewSet(ModelViewSet):
     serializer_class = ContractSerializer
 
     def get_queryset(self):
-        return Contract.objects.all()
+        user_group = str(self.request.user.groups.get())
+        if 'Admin' == user_group:
+            return Contract.objects.all()
+        else:
+            return Contract.objects.filter(sales_contact=self.request.user)
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
@@ -45,7 +60,11 @@ class EventViewSet(ModelViewSet):
     serializer_class = EventSerializer
 
     def get_queryset(self):
-        return Event.objects.all()
+        user_group = str(self.request.user.groups.get())
+        if 'Admin' == user_group:
+            return Event.objects.all()
+        else:
+            return Event.objects.filter(support_contact=self.request.user)
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:

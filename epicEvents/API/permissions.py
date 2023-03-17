@@ -22,6 +22,9 @@ class SalesPermission(BasePermission):
             return request.user.groups.filter(name='Equipe de vente').exists()
         return False
 
+    def has_object_permission(self, request, view, obj):
+        return request.user == obj.sales_contact
+
 
 class SupportPermission(BasePermission):
 
@@ -29,3 +32,6 @@ class SupportPermission(BasePermission):
         if request.user.is_staff and request.user.is_active:
             return request.user.groups.filter(name='Equipe support').exists()
         return False
+
+    def has_object_permission(self, request, view, obj):
+        return request.user == obj.support_contact
